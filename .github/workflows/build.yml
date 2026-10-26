@@ -1,0 +1,55 @@
+name: Build v67suite
+
+on:
+  push:
+    branches: [ master, main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Download ImGui v1.90.4
+        shell: powershell
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/ocornut/imgui/archive/refs/tags/v1.90.4.zip" -OutFile "imgui.zip"
+          Expand-Archive -Path "imgui.zip" -DestinationPath "."
+          Rename-Item "imgui-1.90.4" "imgui"
+
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Compile with cl.exe
+        shell: cmd
+        run: |
+          mkdir output
+          cl.exe /EHsc /std:c++17 /O2 /W3 ^
+            /DUNICODE /D_UNICODE /DWIN32_LEAN_AND_MEAN /DNOMINMAX ^
+            /I. /Iimgui /Iimgui/backends ^
+            cheat.cpp ^
+            imgui/imgui.cpp ^
+            imgui/imgui_draw.cpp ^
+            imgui/imgui_tables.cpp ^
+            imgui/imgui_widgets.cpp ^
+            imgui/backends/imgui_impl_dx11.cpp ^
+            imgui/backends/imgui_impl_win32.cpp ^
+            /Fe:output/v67suite.exe ^
+            /link ^
+              d3d11.lib dxgi.lib d3dcompiler.lib ^
+              dwmapi.lib user32.lib gdi32.lib ^
+              winhttp.lib ^
+              /SUBSYSTEM:WINDOWS ^
+              /ENTRY:WinMainCRTStartup
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: v67suite-x64
+          path: output/v67suite.exe
+          retention-days: 30
