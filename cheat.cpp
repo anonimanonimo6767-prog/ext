@@ -1,12 +1,9 @@
 /*
- * v67suite — Roblox External Cheat
+ * v67suite â€” Roblox External Cheat
  * ESP | Aimbot | Offset Dumper | Custom Keybinds
- * Built for GitHub Actions CI → .exe
+ * Built for GitHub Actions CI â†’ .exe
  */
 
-#define WIN32_LEAN_AND_MEAN
-#define UNICODE
-#define _UNICODE
 #include <windows.h>
 #include <tlhelp32.h>
 #include <dwmapi.h>
@@ -31,9 +28,9 @@
 #include "imgui_impl_win32.h"
 #include "imgui_impl_dx11.h"
 
-// ─────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 //  MEMORY PRIMITIVES
-// ─────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 static HANDLE g_proc = nullptr;
 static DWORD  g_pid  = 0;
 
@@ -46,7 +43,7 @@ static T RPM(uintptr_t addr) {
 
 static std::string RPM_str(uintptr_t addr, size_t maxLen = 64) {
     char buf[256]{};
-    ReadProcessMemory(g_proc, (LPCVOID)addr, buf, min(maxLen, sizeof(buf)-1), nullptr);
+    ReadProcessMemory(g_proc, (LPCVOID)addr, buf, (maxLen < sizeof(buf)-1 ? maxLen : sizeof(buf)-1), nullptr);
     return std::string(buf);
 }
 
@@ -60,9 +57,9 @@ static uintptr_t RPM_chain(uintptr_t base, std::initializer_list<uintptr_t> offs
     return cur;
 }
 
-// ─────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 //  PROCESS / MODULE HELPERS
-// ─────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 static DWORD FindPID(const wchar_t* name) {
     HANDLE snap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
     if (snap == INVALID_HANDLE_VALUE) return 0;
@@ -87,9 +84,9 @@ static uintptr_t GetModuleBase(DWORD pid, const wchar_t* mod) {
     return base;
 }
 
-// ─────────────────────────────────────────────
-//  ROBLOX OFFSETS — auto-dumped at runtime
-// ─────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  ROBLOX OFFSETS â€” auto-dumped at runtime
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 struct Offsets {
     // DataModel
     uintptr_t DataModel        = 0;
@@ -120,9 +117,9 @@ struct Offsets {
 };
 static Offsets g_off;
 
-// ─────────────────────────────────────────────
-//  OFFSET DUMPER — pattern scan + heuristic
-// ─────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  OFFSET DUMPER â€” pattern scan + heuristic
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 struct ScanRegion { uintptr_t base; SIZE_T size; std::vector<uint8_t> buf; };
 
 static std::vector<ScanRegion> SnapshotMemory(HANDLE proc) {
@@ -223,8 +220,8 @@ static std::string GetName(uintptr_t inst) {
     uint32_t sz = RPM<uint32_t>(namePtr);
     if (sz == 0 || sz > 128) return "";
     char buf[129]{};
-    ReadProcessMemory(g_proc, (LPCVOID)(namePtr + 0x10), buf, min(sz, 128u), nullptr);
-    return std::string(buf, min(sz, 128u));
+    ReadProcessMemory(g_proc, (LPCVOID)(namePtr + 0x10), buf, (sz < 128u ? sz : 128u), nullptr);
+    return std::string(buf, (sz < 128u ? sz : 128u));
 }
 
 static std::string GetClassName(uintptr_t inst) {
@@ -253,7 +250,7 @@ static void DumpOffsets(uintptr_t rbxBase) {
     g_off.log.clear();
     g_off.log += "[v67 offset dump]\n";
 
-    // ── DataModel ──
+    // â”€â”€ DataModel â”€â”€
     std::ostringstream ss;
 
     // snapshot memory (can take a moment)
@@ -267,9 +264,9 @@ static void DumpOffsets(uintptr_t rbxBase) {
     ss << "DataModel: 0x" << std::hex << dm << "\n";
     g_off.log += ss.str(); ss.str("");
 
-    if (!dm) { g_off.log += "DataModel not found — retrying next tick\n"; return; }
+    if (!dm) { g_off.log += "DataModel not found â€” retrying next tick\n"; return; }
 
-    // ── Workspace & Camera ──
+    // â”€â”€ Workspace & Camera â”€â”€
     uintptr_t workspace = FindChildByName(dm, "Workspace", 1);
     g_off.Workspace = workspace;
     ss << "Workspace: 0x" << std::hex << workspace << "\n";
@@ -282,13 +279,13 @@ static void DumpOffsets(uintptr_t rbxBase) {
         g_off.log += ss.str(); ss.str("");
     }
 
-    // ── Players ──
+    // â”€â”€ Players â”€â”€
     uintptr_t players = FindChildByName(dm, "Players", 1);
     g_off.oPlayers = players;
     ss << "Players: 0x" << std::hex << players << "\n";
     g_off.log += ss.str(); ss.str("");
 
-    // ── LocalPlayer (first child of Players whose IsLocalPlayer flag) ──
+    // â”€â”€ LocalPlayer (first child of Players whose IsLocalPlayer flag) â”€â”€
     if (players) {
         for (auto c : GetChildren(players)) {
             std::string cn = GetClassName(c);
@@ -305,9 +302,9 @@ static void DumpOffsets(uintptr_t rbxBase) {
     g_off.dumped = true;
 }
 
-// ─────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 //  MATH
-// ─────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 struct Vec2 { float x, y; };
 struct Vec3 { float x, y, z; };
 struct Matrix4 { float m[4][4]; };
@@ -341,9 +338,9 @@ static Matrix4 ReadViewMatrix(uintptr_t cam) {
     return m;
 }
 
-// ─────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 //  PLAYER DATA
-// ─────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 struct PlayerEntry {
     uintptr_t inst;
     std::string name;
@@ -405,9 +402,9 @@ static void UpdatePlayers() {
     g_players = std::move(tmp);
 }
 
-// ─────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 //  KEYBIND CONFIG
-// ─────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 struct KeybindCfg {
     int toggle_menu    = VK_INSERT;
     int toggle_esp     = VK_F1;
@@ -436,9 +433,9 @@ static std::string VkToName(int vk) {
 static bool g_listening = false;
 static int* g_listenTarget = nullptr;
 
-// ─────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 //  SETTINGS
-// ─────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 static bool  s_esp         = true;
 static bool  s_box         = true;
 static bool  s_skeleton    = false;
@@ -455,9 +452,9 @@ static float s_esp_col[4]  = {1,0,0,1};
 static float s_aim_col[4]  = {0,1,0.4f,1};
 static int   s_tab         = 0;
 
-// ─────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 //  AIMBOT
-// ─────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 static void DoAimbot(const std::vector<PlayerEntry>& plist,
                      const Matrix4& vp, float sw, float sh,
                      uintptr_t cam) {
@@ -503,9 +500,9 @@ static void DoAimbot(const std::vector<PlayerEntry>& plist,
     SendInput(1, &inp, sizeof(INPUT));
 }
 
-// ─────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 //  OVERLAY (DX11 transparent window)
-// ─────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 struct Overlay {
     HWND        hwnd    = nullptr;
     ID3D11Device*           dev     = nullptr;
@@ -575,9 +572,9 @@ struct Overlay {
     }
 } g_ov;
 
-// ─────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 //  IMGUI KEYBIND WIDGET
-// ─────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 static void KeybindButton(const char* label, int* key) {
     bool listening = (g_listening && g_listenTarget == key);
     std::string btnLabel = listening
@@ -601,9 +598,9 @@ static void KeybindButton(const char* label, int* key) {
     }
 }
 
-// ─────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 //  MENU GUI
-// ─────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 static bool g_menu = true;
 
 static void DrawMenu() {
@@ -616,7 +613,7 @@ static void DrawMenu() {
 
     ImGui::BeginTabBar("tabs");
 
-    // ── ESP ──
+    // â”€â”€ ESP â”€â”€
     if (ImGui::BeginTabItem("ESP")) {
         ImGui::Checkbox("Enable ESP", &s_esp);
         if (s_esp) {
@@ -633,7 +630,7 @@ static void DrawMenu() {
         ImGui::EndTabItem();
     }
 
-    // ── Aimbot ──
+    // â”€â”€ Aimbot â”€â”€
     if (ImGui::BeginTabItem("Aimbot")) {
         ImGui::Checkbox("Enable Aimbot", &s_aimbot);
         if (s_aimbot) {
@@ -650,7 +647,7 @@ static void DrawMenu() {
         ImGui::EndTabItem();
     }
 
-    // ── Keybinds ──
+    // â”€â”€ Keybinds â”€â”€
     if (ImGui::BeginTabItem("Keybinds")) {
         KeybindButton("Toggle Menu",   &g_keys.toggle_menu);
         KeybindButton("Toggle ESP",    &g_keys.toggle_esp);
@@ -659,7 +656,7 @@ static void DrawMenu() {
         ImGui::EndTabItem();
     }
 
-    // ── Info / Dump ──
+    // â”€â”€ Info / Dump â”€â”€
     if (ImGui::BeginTabItem("Info")) {
         ImGui::Text("DataModel:  0x%llX", g_off.DataModel);
         ImGui::Text("Workspace:  0x%llX", g_off.Workspace);
@@ -680,9 +677,9 @@ static void DrawMenu() {
     ImGui::End();
 }
 
-// ─────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 //  ESP DRAW
-// ─────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 static void DrawESP(ImDrawList* dl, const Matrix4& vp, float sw, float sh) {
     if (!s_esp) return;
 
@@ -733,7 +730,7 @@ static void DrawESP(ImDrawList* dl, const Matrix4& vp, float sw, float sh) {
             float bx   = cx - w/2 - 7.f;
             // background
             dl->AddRectFilled({bx, ty},{bx+3.f, ty+barH}, IM_COL32(40,40,40,200));
-            // fill (green→red)
+            // fill (greenâ†’red)
             ImU32 hcol = IM_COL32((int)((1-pct)*255),(int)(pct*255),0,220);
             float fillH = barH * pct;
             dl->AddRectFilled({bx, ty + barH - fillH},{bx+3.f, ty+barH}, hcol);
@@ -746,7 +743,7 @@ static void DrawESP(ImDrawList* dl, const Matrix4& vp, float sw, float sh) {
             dl->AddLine({sw*0.5f, sh}, {cx, root.y}, tracerCol, 1.f);
 
         if (s_skeleton) {
-            // head → neck → root simple 2-bone line
+            // head â†’ neck â†’ root simple 2-bone line
             Vec2 neck = W2S({p.headPos.x, p.headPos.y - 1.5f, p.headPos.z}, vp, sw, sh);
             if (neck.x > 0) {
                 dl->AddLine({head.x,head.y},{neck.x,neck.y},boxColor,1.f);
@@ -764,9 +761,9 @@ static void DrawESP(ImDrawList* dl, const Matrix4& vp, float sw, float sh) {
     }
 }
 
-// ─────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 //  WORKER THREADS
-// ─────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 static std::atomic<bool> g_running{true};
 static uintptr_t         g_rbxBase = 0;
 
@@ -787,9 +784,9 @@ static void PlayerThread() {
     }
 }
 
-// ─────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 //  MAIN
-// ─────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
     // wait for Roblox
     while (!(g_pid = FindPID(L"RobloxPlayerBeta.exe")) &&
